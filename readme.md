@@ -67,3 +67,13 @@ Comando para criar o tsconfig.json
 ```txt
 tsc --init
 ```
+
+Ficar assistindo as alterações
+
+```txt
+tsc --watch
+```
+
+## Interfaces
+
+Conjunto de dados que busca descrever a estrutura do objeto. Usada para objetos mais complexos.
