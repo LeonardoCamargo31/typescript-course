@@ -53,5 +53,3 @@ cart = {
 // type inference
 // não preciso definir o tipo pois passei o valor ele já identifica
 let message2 = "mensagem definida"
-
-// tipos complexos
