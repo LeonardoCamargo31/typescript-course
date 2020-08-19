@@ -563,3 +563,91 @@ console.log(newState.getState())
 // newState.setState("foo") // dê erro
 // console.log(newState.getState())
 ```
+
+## Type Utilities
+
+Quando criamos tipos, seja com type alias ou interface, tem  alguns momentos que precisamos fazer uma operação ou outra, em cima do próprio tipo, e para isso temos os **type utilities**.
+
+### Temos os Type Utilities mais comuns:
+
+- Readonly
+- Partial
+- Pick
+- Omit
+
+A escrita deles é baseada em generics, exemplo:
+
+```ts
+const todo: Readonly<Todo>
+```
+
+Exemplo completo
+
+```ts
+type Todo = {
+  title: string
+  description: string
+  completed: boolean
+}
+
+// todas as props viram readonly
+const todo: Readonly<Todo> = {
+  title: "Assistir curso",
+  description: "Relembrar os detalhes",
+  completed: false
+}
+
+// alterando diretamente o obj, isso pode ser um problema
+// e não queremos que o obj seja alterado, quase como um freeze
+// para isso vamos criar uma função updateTodo, para copiar e alterar os valores
+// isso segue o principio de imutabilidade
+// todo.completed = true
+
+/// Partial
+// fieldsToUpdate só props do todo
+// ex passar uma prop diferente
+// mas preciso passar o objeto inteiro, nada é opcional
+
+// para isso uso o partial em fieldsToUpdate:Todo
+// deixa todas as props opcionais para fieldsToUpdate
+function updateTodo(todo:Todo, fieldsToUpdate: Partial<Todo>){
+  return {...todo,...fieldsToUpdate}
+}
+
+const todo2: Todo = updateTodo(todo, { completed: true })
+console.log(todo)
+
+
+/// Pick
+// quero que ele pegue do Todo o title e description
+// type TodoPreview = {
+//  title: string;
+//  completed: boolean;
+//}
+type TodoPreview = Pick<Todo, "title"| "completed">
+
+const todo3 : TodoPreview = {
+  title: "Assistir de inglês",
+  completed: true,
+}
+
+/// Omit
+// quero omitir o description
+// type TodoPreview2 = {
+//  title: string;
+//  completed: boolean;
+//}
+type TodoPreview2 = Omit<Todo, "description">
+
+const todo4 : TodoPreview = {
+  title: "Assistir de inglês",
+  completed: true,
+}
+```
+
+### Quando utilizar Pick e Omit
+
+- Quando quero anular mais coisas, faz sentido usar o Pick. Se tenho 5 e quero só 1, use o Pick.
+- Pegar mais coisas faz sentido o Omit. Exemplo tenho 5 props e quero 4, use o Omit.
+
+No nosso exemplo faz mais sentido Omit
