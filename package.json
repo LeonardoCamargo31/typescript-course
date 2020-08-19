@@ -4,7 +4,7 @@
   "description": "## O que é TypeScript",
   "main": "index.js",
   "scripts": {
-    "start":"nodemon dist/interface.js",
+    "start":"nodemon dist/generics.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

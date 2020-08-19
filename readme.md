@@ -514,3 +514,52 @@ const $: Jquery {
 
 - Quando tiver criando libs, prefira interfaces, porque são mais extensíveis!
 - Criando objetos/classes (POO)
+
+## Generics
+
+Sempre buscamos reutilizar código, mas quando começa a trabalhar com uma linguagem tipada, como por exemplo o typescript, tudo fica fortemente tipado, e isso acaba não sendo mais tão genérico.
+
+Por isso temos o generics, não é o nível de uma linguagem dinâmica, mas já facilita bem mais o código e deixa ele bem mais flexível, para aceitar diferentes tipos de entradas.
+
+### Algumas letras padrões, mas pode ser o que quiser
+
+- S => State
+- T => Type
+- K => Key
+- V => Value
+- E => Element
+
+```ts
+// let state:number | string
+// troca pelo S
+
+// vamos estender de number e string
+// e só aceitar esses tipos, não aceita mais
+// const newState = useState<boolean>()
+function useState<S extends number | string = string>(){
+  let state: S
+
+  function getState(){
+    return state
+  }
+
+  function setState(newState: S){
+    state = newState
+  }
+  
+  return { getState, setState }
+}
+// defini como padrão/default string <S extends number | string = string>
+//const newState = useState() // vai passar a aceitar string
+
+// s => unknown/desconhecido
+// passei um number ele passa a aceitar só number
+const newState = useState<number>()
+
+newState.setState(123) // number
+console.log(newState.getState())
+
+// quero que depois de definido não mude o tipo
+// newState.setState("foo") // dê erro
+// console.log(newState.getState())
+```
