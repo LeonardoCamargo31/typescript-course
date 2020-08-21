@@ -651,3 +651,150 @@ const todo4 : TodoPreview = {
 - Pegar mais coisas faz sentido o Omit. Exemplo tenho 5 props e quero 4, use o Omit.
 
 No nosso exemplo faz mais sentido Omit
+
+## Decorators
+
+Apesar de serem muito utilizados, ainda são uma feature experimental, eles são oficialmente lançado na linguagem. Assim precisamos o habilitar lá no `tsconfig.json`:
+
+```json
+"experimentalDecorators": true
+```
+
+É uma declaração/anotação anexada a uma:
+
+- Classe
+- Propriedade
+- Método
+- Parâmetro
+- Acessor
+
+```ts
+// criando um decorator, ele é uma função
+function log(target){
+  console.log(target)//[Function: Foo]
+}
+
+//@ e nome do decorator
+@log
+class Foo {}
+```
+
+Criando uma factory, que é uma função que vai retornar o nosso decorator, assim conseguimos receber mais informações.
+
+```ts
+// factory
+function logger(prefix: string){
+  return (target) => {
+    console.log(`${prefix} - ${target}`)// awesome - function Foo() {}
+  }
+}
+
+@logger('awesome')
+class Foo {}
+```
+
+Exemplo class decorator
+
+```ts
+function setAPIVersion(apiVersion: string){
+  return (constructor) => {
+    return class extends constructor{
+      version = apiVersion
+    }
+  }
+}
+
+// decorator - anotar a versão da API
+@setAPIVersion("1.0.0")
+class API {}
+
+console.log(new API())// class_1 { version: '1.0.0' }
+```
+
+Property decorator
+
+```ts
+function minLength(length: number){
+  // target é minha classe, key minha propriedade title
+  return (target:any, key: string) => {
+    console.log(target)// Movie {}
+    console.log(key)// title
+
+    // movie.title
+    let val = target[key]
+
+    // get e set
+    const getter = () => val
+    const setter = (value: string) => {
+      if(value.length<length){// definido no decorator @minLength(5)
+        console.log(`Error: Não pode criar ${key} com tamanho menor que ${length}.`)
+      }
+      else{
+        val = value
+      }
+    }
+
+    // precisa definir no nosso objeto
+    Object.defineProperty(target,key,{
+      get: getter,
+      set: setter
+    })
+  }
+}
+
+class Movie {
+  // fazer uma validação - menor que 5 não pode
+  @minLength(5)
+  title: string
+
+  constructor(t:string){
+    this.title = t
+  }
+}
+
+const movie = new Movie("Foo")
+//Error: Não pode criar title com tamanho menor que 5.
+console.log(movie.title)// undefined
+```
+
+Method decorator
+
+```ts
+function delay(ms:number){
+  return (target:any, key: string, descriptor: PropertyDescriptor)=> {
+    console.log(target) // Greeter { greet: [Function] }
+    console.log(key) // greet
+    console.log(descriptor) // { value: [Function], writable: true, enumerable: true, configurable: true }
+  
+    // minha função greet
+    const originalMethod = descriptor.value
+    descriptor.value = function (...args){
+      console.log(`Esperando ${ms}...`)
+      setTimeout(()=>{
+        console.log('args',args) // []
+        console.log(this) // Greeter { greeting: 'pessoa' }
+        originalMethod.apply(this,args)
+      },ms)
+
+      return descriptor
+    }
+  }
+}
+
+class Greeter {
+  greeting: string
+  
+  constructor(g: string){
+    this.greeting = g
+  }
+
+  // esperar um tempo, e ai sim rodar o método
+  @delay(1000)
+  greet(){
+    console.log(`Hello! ${this.greeting}`)
+  }
+}
+
+const person = new Greeter("pessoa")
+person.greet()
+```
